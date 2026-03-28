@@ -27,7 +27,7 @@ _fb "datastore"              "1.1.1"
 _fb "hilt"                   "2.53.1"
 _fb "hilt-navigation-compose" "1.2.0"
 _fb "koin"                   "4.0.1"
-_fb "metro"                  "0.4.0"
+_fb "metro"                  "0.3.8"
 _fb "retrofit"               "2.11.0"
 _fb "okhttp"                 "4.12.0"
 _fb "ktor"                   "3.0.3"
@@ -71,7 +71,7 @@ _cd "kotlin"                 "central:org.jetbrains.kotlin:kotlin-stdlib"
 _cd "ksp"                    "central:com.google.devtools.ksp:symbol-processing-api"
 _cd "hilt"                   "central:com.google.dagger:hilt-android"
 _cd "koin"                   "central:io.insert-koin:koin-android"
-_cd "metro"                  "central:dev.zacsweers.metro:metro-runtime"
+_cd "metro"                  "central:dev.zacsweers.metro:runtime"
 _cd "retrofit"               "central:com.squareup.retrofit2:retrofit"
 _cd "okhttp"                 "central:com.squareup.okhttp3:okhttp"
 _cd "ktor"                   "central:io.ktor:ktor-client-android"
@@ -268,12 +268,7 @@ resolve_version() {
 }
 
 resolve_all_versions() {
-  # Core toolchain versions are hardcoded for compatibility (AGP + Kotlin + KSP must match)
-  set_resolved "agp" "$(get_fallback agp)"
-  set_resolved "kotlin" "$(get_fallback kotlin)"
-  set_resolved "ksp" "$(get_fallback ksp)"
-
-  local always_deps="compose-bom activity-compose lifecycle navigation-compose room datastore kotlinx-serialization coroutines junit5 mockk turbine robolectric"
+  local always_deps="agp kotlin ksp compose-bom activity-compose lifecycle navigation-compose room datastore kotlinx-serialization coroutines junit5 mockk turbine robolectric"
 
   local di_deps=""
   case "${DI_FRAMEWORK:-hilt}" in
@@ -290,23 +285,26 @@ resolve_all_versions() {
 
   local all_deps="$always_deps $di_deps $net_deps"
 
-  for dep in $all_deps; do
-    local version
-    version=$(resolve_version "$dep") || true
-    if [[ -n "$version" ]]; then
-      set_resolved "$dep" "$version"
-    else
+  if [[ "${RESOLVE_LATEST:-}" == "true" ]]; then
+    # --latest flag: try network, fall back to hardcoded
+    for dep in $all_deps; do
+      local version
+      version=$(resolve_version "$dep") || true
+      if [[ -n "$version" ]]; then
+        set_resolved "$dep" "$version"
+      else
+        local fb
+        fb=$(get_fallback "$dep" 2>/dev/null) || true
+        set_resolved "$dep" "${fb:-UNKNOWN}"
+      fi
+    done
+  else
+    # Default: use hardcoded versions (tested and guaranteed compatible)
+    log_info "Using tested dependency versions (pass --latest to fetch newest from Maven)"
+    for dep in $all_deps; do
       local fb
       fb=$(get_fallback "$dep" 2>/dev/null) || true
       set_resolved "$dep" "${fb:-UNKNOWN}"
-    fi
-  done
-
-  # KSP - resolve from Maven Central directly rather than deriving from Kotlin
-  local ksp_ver
-  ksp_ver=$(resolve_version "ksp") || true
-  if [[ -z "$ksp_ver" ]]; then
-    ksp_ver=$(get_fallback "ksp")
+    done
   fi
-  set_resolved "ksp" "$ksp_ver"
 }

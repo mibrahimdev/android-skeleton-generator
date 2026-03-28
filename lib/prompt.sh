@@ -22,6 +22,7 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --non-interactive) NON_INTERACTIVE="true"; shift ;;
+      --latest)     RESOLVE_LATEST="true"; shift ;;
       --name)       APP_NAME="$2"; shift 2 ;;
       --package)    PACKAGE_NAME="$2"; shift 2 ;;
       --min-sdk)    MIN_SDK="$2"; shift 2 ;;
@@ -196,6 +197,7 @@ Generate an Android skeleton project with preconfigured dependencies.
 
 Options:
   --non-interactive     Run without prompts (requires all flags)
+  --latest              Fetch latest versions from Maven (default: use tested versions)
   --name NAME           App name (e.g. MyApp)
   --package PKG         Package name (e.g. com.example.myapp)
   --min-sdk SDK         Minimum SDK version (21-35)

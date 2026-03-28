@@ -96,16 +96,18 @@ prompt_choice() {
   while true; do
     echo ""
     echo "$prompt_text"
+    echo ""
     for i in "${!options[@]}"; do
       echo "  $((i + 1))) ${options[$i]}"
     done
-    read -rp "Choice [1-${#options[@]}]: " choice
+    echo ""
+    read -rp "Enter a number (1-${#options[@]}): " choice
 
     if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then
       echo "${options[$((choice - 1))]}"
       return 0
     fi
-    log_error "Invalid choice. Try again."
+    log_error "Invalid choice. Please enter a number between 1 and ${#options[@]}."
   done
 }
 
@@ -138,10 +140,27 @@ collect_config_interactive() {
   MIN_SDK=$(prompt_choice "Minimum SDK version:" "21 (Android 5.0)" "24 (Android 7.0)" "26 (Android 8.0)" "28 (Android 9.0)")
   MIN_SDK="${MIN_SDK%% *}"  # Extract just the number
 
-  ARCH_TYPE=$(prompt_choice "Architecture pattern:" "mvvm-clean" "mvi-clean" "mvvm-simple")
-  DI_FRAMEWORK=$(prompt_choice "Dependency injection:" "hilt" "koin" "metro")
-  NETWORK_LIB=$(prompt_choice "Networking library:" "retrofit" "ktor")
-  MODULE_TYPE=$(prompt_choice "Module structure:" "single" "multi")
+  ARCH_TYPE=$(prompt_choice "Architecture pattern:" \
+    "mvvm-clean  — MVVM + Clean Architecture (ViewModel + UseCase + Repository layers)" \
+    "mvi-clean   — MVI + Clean Architecture (unidirectional data flow with Intent/State)" \
+    "mvvm-simple — MVVM Simple (ViewModel + Repository, no domain layer)")
+  ARCH_TYPE="${ARCH_TYPE%% *}"  # Extract the key before the description
+
+  DI_FRAMEWORK=$(prompt_choice "Dependency injection framework:" \
+    "hilt  — Dagger Hilt (annotation-based, official Jetpack support)" \
+    "koin  — Koin (lightweight, pure Kotlin service locator)" \
+    "metro — Metro (KSP-based, compile-time DI by Zac Sweers)")
+  DI_FRAMEWORK="${DI_FRAMEWORK%% *}"
+
+  NETWORK_LIB=$(prompt_choice "Networking library:" \
+    "retrofit — Retrofit + OkHttp (type-safe HTTP client, industry standard)" \
+    "ktor     — Ktor Client (pure Kotlin, coroutine-native, multiplatform-ready)")
+  NETWORK_LIB="${NETWORK_LIB%% *}"
+
+  MODULE_TYPE=$(prompt_choice "Module structure:" \
+    "single — Single app module (simpler, recommended for starting out)" \
+    "multi  — Multi-module (separate domain/data/presentation modules)")
+  MODULE_TYPE="${MODULE_TYPE%% *}"
 
   OUTPUT_DIR="${OUTPUT_DIR:-./$APP_NAME}"
   read -rp "Output directory [$OUTPUT_DIR]: " user_dir

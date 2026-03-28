@@ -94,21 +94,21 @@ prompt_choice() {
   local choice
 
   while true; do
-    echo ""
-    echo -e "${BLUE}▸ ${prompt_text}${NC}"
-    echo ""
+    echo "" >&2
+    echo -e "${BLUE}▸ ${prompt_text}${NC}" >&2
+    echo "" >&2
     for i in "${!options[@]}"; do
       local opt="${options[$i]}"
       local key="${opt%% *}"       # e.g. "mvvm-clean"
       local rest="${opt#* }"       # e.g. "— MVVM + Clean Architecture (...)"
       # If there's no description (key == rest), just show the key highlighted
       if [[ "$key" == "$rest" ]]; then
-        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC}"
+        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC}" >&2
       else
-        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC} ${rest}"
+        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC} ${rest}" >&2
       fi
     done
-    echo ""
+    echo "" >&2
     read -rp "Select [1-${#options[@]}]: " choice
 
     if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then

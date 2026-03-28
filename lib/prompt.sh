@@ -95,13 +95,21 @@ prompt_choice() {
 
   while true; do
     echo ""
-    echo "$prompt_text"
+    echo -e "${BLUE}▸ ${prompt_text}${NC}"
     echo ""
     for i in "${!options[@]}"; do
-      echo "  $((i + 1))) ${options[$i]}"
+      local opt="${options[$i]}"
+      local key="${opt%% *}"       # e.g. "mvvm-clean"
+      local rest="${opt#* }"       # e.g. "— MVVM + Clean Architecture (...)"
+      # If there's no description (key == rest), just show the key highlighted
+      if [[ "$key" == "$rest" ]]; then
+        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC}"
+      else
+        echo -e "  ${GREEN}$((i + 1)))${NC}  ${YELLOW}${key}${NC} ${rest}"
+      fi
     done
     echo ""
-    read -rp "Enter a number (1-${#options[@]}): " choice
+    read -rp "Select [1-${#options[@]}]: " choice
 
     if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then
       echo "${options[$((choice - 1))]}"
@@ -118,7 +126,8 @@ prompt_text() {
   local value
 
   while true; do
-    read -rp "$prompt_text: " value
+    echo "" >&2
+    read -rp "$(echo -e "${BLUE}▸${NC} ${prompt_text}: ")" value
     if $validator "$value"; then
       echo "$value"
       return 0
@@ -130,9 +139,9 @@ prompt_text() {
 # Run interactive prompts to collect all config
 collect_config_interactive() {
   echo ""
-  log_info "Android Skeleton Project Generator"
-  echo "==================================="
-  echo ""
+  echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}" >&2
+  echo -e "${GREEN}║   Android Skeleton Project Generator     ║${NC}" >&2
+  echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}" >&2
 
   APP_NAME=$(prompt_text "App name (e.g. MyApp)" validate_app_name)
   PACKAGE_NAME=$(prompt_text "Package name (e.g. com.example.myapp)" validate_package_name)
@@ -163,7 +172,8 @@ collect_config_interactive() {
   MODULE_TYPE="${MODULE_TYPE%% *}"
 
   OUTPUT_DIR="${OUTPUT_DIR:-./$APP_NAME}"
-  read -rp "Output directory [$OUTPUT_DIR]: " user_dir
+  echo "" >&2
+  read -rp "$(echo -e "${BLUE}▸${NC} Output directory [${YELLOW}${OUTPUT_DIR}${NC}]: ")" user_dir
   OUTPUT_DIR="${user_dir:-$OUTPUT_DIR}"
 }
 

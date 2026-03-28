@@ -45,7 +45,7 @@ main() {
   log_info "  Output:       $OUTPUT_DIR"
 
   # Compute derived values
-  PACKAGE_PATH="${PACKAGE_NAME//./\/}"
+  PACKAGE_PATH="$(echo "$PACKAGE_NAME" | tr '.' '/')"
   COMPILE_SDK="35"
   TARGET_SDK="35"
 

@@ -1,0 +1,6 @@
+package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+
+sealed interface {{FEATURE_NAME_PASCAL}}Intent {
+    data object LoadItems : {{FEATURE_NAME_PASCAL}}Intent
+    data object RefreshItems : {{FEATURE_NAME_PASCAL}}Intent
+}

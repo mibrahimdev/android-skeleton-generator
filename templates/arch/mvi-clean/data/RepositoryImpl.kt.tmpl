@@ -1,0 +1,19 @@
+package {{PACKAGE_NAME}}.data.repository
+
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.domain.model.Item
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import kotlinx.coroutines.flow.Flow
+
+class ItemRepositoryImpl(
+    private val localDataSource: LocalDataSource
+) : ItemRepository {
+
+    override fun getItems(): Flow<List<Item>> = localDataSource.getItems()
+
+    override suspend fun getItemById(id: Long): Item? = localDataSource.getItemById(id)
+
+    override suspend fun insertItem(item: Item) = localDataSource.insertItem(item)
+
+    override suspend fun deleteItem(id: Long) = localDataSource.deleteItem(id)
+}

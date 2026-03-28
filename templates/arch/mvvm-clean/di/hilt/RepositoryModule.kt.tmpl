@@ -1,0 +1,20 @@
+package {{PACKAGE_NAME}}.di
+
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.data.repository.ItemRepositoryImpl
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object RepositoryModule {
+
+    @Provides
+    @Singleton
+    fun provideItemRepository(localDataSource: LocalDataSource): ItemRepository =
+        ItemRepositoryImpl(localDataSource)
+}

@@ -1,0 +1,59 @@
+package {{PACKAGE_NAME}}.di
+
+import androidx.room.Room
+import {{PACKAGE_NAME}}.data.local.AppDatabase
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.data.remote.KtorApiClient
+import {{PACKAGE_NAME}}.data.remote.RemoteDataSource
+import {{PACKAGE_NAME}}.data.repository.ItemRepositoryImpl
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}.{{FEATURE_NAME_PASCAL}}ViewModel
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
+
+val appModule = module {
+
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "app_database")
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    single { get<AppDatabase>().itemDao() }
+
+    single { LocalDataSource(get()) }
+
+    single {
+        HttpClient(Android) {
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true })
+            }
+            install(Logging) {
+                level = LogLevel.BODY
+            }
+            defaultRequest {
+                url("https://api.example.com/")
+            }
+        }
+    }
+
+    single { KtorApiClient(get()) }
+
+    single { RemoteDataSource(get()) }
+
+    single<ItemRepository> { ItemRepositoryImpl(get()) }
+
+    factory { GetItemsUseCase(get()) }
+
+    viewModel { {{FEATURE_NAME_PASCAL}}ViewModel(get()) }
+}

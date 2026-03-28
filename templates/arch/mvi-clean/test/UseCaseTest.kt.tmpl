@@ -1,0 +1,50 @@
+package {{PACKAGE_NAME}}.domain.usecase
+
+import app.cash.turbine.test
+import {{PACKAGE_NAME}}.domain.model.Item
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+class GetItemsUseCaseTest {
+
+    private lateinit var repository: ItemRepository
+    private lateinit var useCase: GetItemsUseCase
+
+    @BeforeEach
+    fun setup() {
+        repository = mockk()
+        useCase = GetItemsUseCase(repository)
+    }
+
+    @Test
+    fun `invoke returns items from repository`() = runTest {
+        val items = listOf(
+            Item(id = 1, title = "Test", description = "Test description")
+        )
+        every { repository.getItems() } returns flowOf(items)
+
+        useCase().test {
+            val result = awaitItem()
+            assertEquals(1, result.size)
+            assertEquals("Test", result[0].title)
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `invoke returns empty list when repository is empty`() = runTest {
+        every { repository.getItems() } returns flowOf(emptyList())
+
+        useCase().test {
+            val result = awaitItem()
+            assertEquals(0, result.size)
+            awaitComplete()
+        }
+    }
+}

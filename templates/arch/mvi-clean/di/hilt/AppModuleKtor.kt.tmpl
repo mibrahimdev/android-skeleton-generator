@@ -1,0 +1,70 @@
+package {{PACKAGE_NAME}}.di
+
+import android.content.Context
+import androidx.room.Room
+import {{PACKAGE_NAME}}.data.local.AppDatabase
+import {{PACKAGE_NAME}}.data.local.ItemDao
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.data.remote.KtorApiClient
+import {{PACKAGE_NAME}}.data.remote.RemoteDataSource
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    fun provideItemDao(database: AppDatabase): ItemDao = database.itemDao()
+
+    @Provides
+    @Singleton
+    fun provideLocalDataSource(itemDao: ItemDao): LocalDataSource = LocalDataSource(itemDao)
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(): HttpClient = HttpClient(Android) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        install(Logging) {
+            level = LogLevel.BODY
+        }
+        defaultRequest {
+            url("https://api.example.com/")
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideKtorApiClient(httpClient: HttpClient): KtorApiClient = KtorApiClient(httpClient)
+
+    @Provides
+    @Singleton
+    fun provideRemoteDataSource(apiClient: KtorApiClient): RemoteDataSource = RemoteDataSource(apiClient)
+
+    @Provides
+    @Singleton
+    fun provideGetItemsUseCase(repository: ItemRepository): GetItemsUseCase = GetItemsUseCase(repository)
+}

@@ -1,0 +1,67 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+{{PLUGIN_BLOCK}}
+}
+
+android {
+    namespace = "{{PACKAGE_NAME}}"
+    compileSdk = {{COMPILE_SDK}}
+
+    defaultConfig {
+        applicationId = "{{PACKAGE_NAME}}"
+        minSdk = {{MIN_SDK}}
+        targetSdk = {{TARGET_SDK}}
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+dependencies {
+{{DEPENDENCY_BLOCK}}
+}

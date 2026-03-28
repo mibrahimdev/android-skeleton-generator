@@ -1,0 +1,60 @@
+package {{PACKAGE_NAME}}.di
+
+import androidx.room.Room
+import {{PACKAGE_NAME}}.data.local.AppDatabase
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.data.remote.ApiService
+import {{PACKAGE_NAME}}.data.remote.RemoteDataSource
+import {{PACKAGE_NAME}}.data.repository.ItemRepositoryImpl
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}.{{FEATURE_NAME_PASCAL}}ViewModel
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+
+val appModule = module {
+
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "app_database")
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    single { get<AppDatabase>().itemDao() }
+
+    single { LocalDataSource(get()) }
+
+    single {
+        OkHttpClient.Builder()
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
+    }
+
+    single {
+        val json = Json { ignoreUnknownKeys = true }
+        Retrofit.Builder()
+            .baseUrl("https://api.example.com/")
+            .client(get())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    single { get<Retrofit>().create(ApiService::class.java) }
+
+    single { RemoteDataSource(get()) }
+
+    single<ItemRepository> { ItemRepositoryImpl(get()) }
+
+    single { GetItemsUseCase(get()) }
+
+    viewModel { {{FEATURE_NAME_PASCAL}}ViewModel(get()) }
+}

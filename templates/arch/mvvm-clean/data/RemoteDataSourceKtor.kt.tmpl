@@ -1,0 +1,10 @@
+package {{PACKAGE_NAME}}.data.remote
+
+import {{PACKAGE_NAME}}.domain.model.Item
+
+class RemoteDataSource(private val apiClient: KtorApiClient) {
+
+    suspend fun getItems(): List<Item> = apiClient.getItems()
+
+    suspend fun getItemById(id: Long): Item = apiClient.getItemById(id)
+}

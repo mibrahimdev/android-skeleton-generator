@@ -1,0 +1,17 @@
+    // Testing
+    testImplementation(libs.junit5.api)
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit5.vintage.engine)
+    testRuntimeOnly(libs.junit5.launcher)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.coroutines.test)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("junit:junit:4.13.2")
+    // Coroutines
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)

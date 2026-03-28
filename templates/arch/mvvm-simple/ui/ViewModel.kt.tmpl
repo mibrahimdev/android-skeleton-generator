@@ -1,0 +1,45 @@
+package {{PACKAGE_NAME}}.ui.home
+
+{{HILT_IMPORT}}
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import {{PACKAGE_NAME}}.data.repository.Item
+import {{PACKAGE_NAME}}.data.repository.ItemRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class HomeUiState(
+    val items: List<Item> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
+
+{{HILT_ANNOTATION}}
+class HomeViewModel {{HILT_INJECT}}constructor(
+    private val repository: ItemRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    init {
+        loadItems()
+    }
+
+    fun loadItems() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            repository.getItems()
+                .catch { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
+                .collect { items ->
+                    _uiState.update { it.copy(items = items, isLoading = false) }
+                }
+        }
+    }
+}

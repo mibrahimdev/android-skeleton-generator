@@ -1,0 +1,36 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "{{PACKAGE_NAME}}.data"
+    compileSdk = {{COMPILE_SDK}}
+
+    defaultConfig {
+        minSdk = {{MIN_SDK}}
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation(project(":domain"))
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.datastore.preferences)
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
+{{DEPENDENCY_BLOCK_DATA}}
+}

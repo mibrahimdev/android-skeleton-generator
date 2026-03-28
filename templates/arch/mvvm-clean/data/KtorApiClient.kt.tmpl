@@ -1,0 +1,13 @@
+package {{PACKAGE_NAME}}.data.remote
+
+import {{PACKAGE_NAME}}.domain.model.Item
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+
+class KtorApiClient(private val client: HttpClient) {
+
+    suspend fun getItems(): List<Item> = client.get("items").body()
+
+    suspend fun getItemById(id: Long): Item = client.get("items/$id").body()
+}

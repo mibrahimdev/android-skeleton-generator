@@ -1,0 +1,76 @@
+package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+
+{{HILT_IMPORT}}
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+{{HILT_ANNOTATION}}
+class {{FEATURE_NAME_PASCAL}}ViewModel {{HILT_INJECT}}constructor(
+    private val getItemsUseCase: GetItemsUseCase
+) : ViewModel() {
+
+    private val _state = MutableStateFlow({{FEATURE_NAME_PASCAL}}State())
+    val state: StateFlow<{{FEATURE_NAME_PASCAL}}State> = _state.asStateFlow()
+
+    private val _sideEffect = Channel<{{FEATURE_NAME_PASCAL}}SideEffect>(Channel.BUFFERED)
+    val sideEffect = _sideEffect.receiveAsFlow()
+
+    init {
+        processIntent({{FEATURE_NAME_PASCAL}}Intent.LoadItems)
+    }
+
+    fun processIntent(intent: {{FEATURE_NAME_PASCAL}}Intent) {
+        when (intent) {
+            is {{FEATURE_NAME_PASCAL}}Intent.LoadItems -> loadItems()
+            is {{FEATURE_NAME_PASCAL}}Intent.RefreshItems -> refreshItems()
+        }
+    }
+
+    private fun loadItems() {
+        viewModelScope.launch {
+            _state.update { reduce(it, loading = true, error = null) }
+            getItemsUseCase()
+                .catch { e ->
+                    _state.update { reduce(it, loading = false, error = e.message) }
+                    _sideEffect.send({{FEATURE_NAME_PASCAL}}SideEffect.ShowError(e.message ?: "Unknown error"))
+                }
+                .collect { items ->
+                    _state.update { reduce(it, items = items, loading = false) }
+                }
+        }
+    }
+
+    private fun refreshItems() {
+        viewModelScope.launch {
+            _state.update { reduce(it, loading = true, error = null) }
+            getItemsUseCase()
+                .catch { e ->
+                    _state.update { reduce(it, loading = false, error = e.message) }
+                    _sideEffect.send({{FEATURE_NAME_PASCAL}}SideEffect.ShowError(e.message ?: "Unknown error"))
+                }
+                .collect { items ->
+                    _state.update { reduce(it, items = items, loading = false) }
+                }
+        }
+    }
+
+    private fun reduce(
+        currentState: {{FEATURE_NAME_PASCAL}}State,
+        items: List<{{PACKAGE_NAME}}.domain.model.Item> = currentState.items,
+        loading: Boolean = currentState.isLoading,
+        error: String? = currentState.error
+    ): {{FEATURE_NAME_PASCAL}}State = currentState.copy(
+        items = items,
+        isLoading = loading,
+        error = error
+    )
+}

@@ -1,0 +1,73 @@
+package {{PACKAGE_NAME}}.di
+
+import android.content.Context
+import androidx.room.Room
+import {{PACKAGE_NAME}}.data.local.AppDatabase
+import {{PACKAGE_NAME}}.data.local.ItemDao
+import {{PACKAGE_NAME}}.data.local.LocalDataSource
+import {{PACKAGE_NAME}}.data.remote.ApiService
+import {{PACKAGE_NAME}}.data.remote.RemoteDataSource
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    fun provideItemDao(database: AppDatabase): ItemDao = database.itemDao()
+
+    @Provides
+    @Singleton
+    fun provideLocalDataSource(itemDao: ItemDao): LocalDataSource = LocalDataSource(itemDao)
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val json = Json { ignoreUnknownKeys = true }
+        return Retrofit.Builder()
+            .baseUrl("https://api.example.com/")
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRemoteDataSource(apiService: ApiService): RemoteDataSource = RemoteDataSource(apiService)
+
+    @Provides
+    @Singleton
+    fun provideGetItemsUseCase(repository: ItemRepository): GetItemsUseCase = GetItemsUseCase(repository)
+}

@@ -1,0 +1,57 @@
+package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import {{PACKAGE_NAME}}.domain.model.Item
+import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(
+    sdk = [34],
+    application = android.app.Application::class
+)
+class {{FEATURE_NAME_PASCAL}}ScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun displaysAppTitle() {
+        val useCase = mockk<GetItemsUseCase>()
+        every { useCase() } returns flowOf(emptyList())
+        val viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(useCase)
+
+        composeTestRule.setContent {
+            {{FEATURE_NAME_PASCAL}}Screen(viewModel = viewModel)
+        }
+
+        composeTestRule.onNodeWithText("{{APP_NAME}}").assertIsDisplayed()
+    }
+
+    @Test
+    fun displaysItemsInList() {
+        val items = listOf(
+            Item(id = 1, title = "Test Item", description = "Test Description")
+        )
+        val useCase = mockk<GetItemsUseCase>()
+        every { useCase() } returns flowOf(items)
+        val viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(useCase)
+
+        composeTestRule.setContent {
+            {{FEATURE_NAME_PASCAL}}Screen(viewModel = viewModel)
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Test Item").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Test Description").assertIsDisplayed()
+    }
+}

@@ -1,0 +1,13 @@
+package {{PACKAGE_NAME}}.data.remote
+
+import {{PACKAGE_NAME}}.domain.model.Item
+import retrofit2.http.GET
+import retrofit2.http.Path
+
+interface ApiService {
+    @GET("items")
+    suspend fun getItems(): List<Item>
+
+    @GET("items/{id}")
+    suspend fun getItemById(@Path("id") id: Long): Item
+}

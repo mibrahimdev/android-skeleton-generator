@@ -1,0 +1,10 @@
+package {{PACKAGE_NAME}}.data.remote
+
+import {{PACKAGE_NAME}}.domain.model.Item
+
+class RemoteDataSource(private val apiService: ApiService) {
+
+    suspend fun getItems(): List<Item> = apiService.getItems()
+
+    suspend fun getItemById(id: Long): Item = apiService.getItemById(id)
+}

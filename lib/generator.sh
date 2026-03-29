@@ -132,6 +132,30 @@ import org.koin.core.context.startKoin"
       ;;
   esac
 
+  # Mocking library placeholders (version catalog entries)
+  case "$MOCK_LIB" in
+    mockk)
+      # Look up resolved mockk version
+      local mockk_ver=""
+      for ((i = 0; i < ${#RESOLVED_KEYS[@]}; i++)); do
+        [[ "${RESOLVED_KEYS[$i]}" == "mockk" ]] && mockk_ver="${RESOLVED_VALS[$i]}"
+      done
+      _tv "MOCK_VERSION_ENTRIES" "mockk = \"${mockk_ver}\""
+      _tv "MOCK_LIBRARY_ENTRIES" "mockk = { group = \"io.mockk\", name = \"mockk\", version.ref = \"mockk\" }"
+      ;;
+    mockito)
+      local mockito_ver="" mockito_kotlin_ver=""
+      for ((i = 0; i < ${#RESOLVED_KEYS[@]}; i++)); do
+        [[ "${RESOLVED_KEYS[$i]}" == "mockito" ]] && mockito_ver="${RESOLVED_VALS[$i]}"
+        [[ "${RESOLVED_KEYS[$i]}" == "mockito-kotlin" ]] && mockito_kotlin_ver="${RESOLVED_VALS[$i]}"
+      done
+      _tv "MOCK_VERSION_ENTRIES" "mockito = \"${mockito_ver}\"
+mockitoKotlin = \"${mockito_kotlin_ver}\""
+      _tv "MOCK_LIBRARY_ENTRIES" "mockito-core = { group = \"org.mockito\", name = \"mockito-core\", version.ref = \"mockito\" }
+mockito-kotlin = { group = \"org.mockito.kotlin\", name = \"mockito-kotlin\", version.ref = \"mockitoKotlin\" }"
+      ;;
+  esac
+
   # Build dependency and plugin blocks from fragments
   dep_block=""
   app_plugin_block=""
@@ -158,6 +182,17 @@ import org.koin.core.context.startKoin"
       root_plugin_block+="$(echo "$plugin_line" | sed 's/)/) apply false/')"$'\n'
     fi
   fi
+
+  # Mock library dependencies
+  case "$MOCK_LIB" in
+    mockk)
+      dep_block+="    testImplementation(libs.mockk)"$'\n'
+      ;;
+    mockito)
+      dep_block+="    testImplementation(libs.mockito.core)"$'\n'
+      dep_block+="    testImplementation(libs.mockito.kotlin)"$'\n'
+      ;;
+  esac
 
   _tv "DEPENDENCY_BLOCK" "$dep_block"
   _tv "PLUGIN_BLOCK" "$app_plugin_block"
@@ -273,14 +308,15 @@ STRINGS
       fi
 
       # Tests
-      if [[ -f "$arch_dir/test/ViewModelTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/ViewModelTest.kt.tmpl" "$test_dir/presentation/home/HomeViewModelTest.kt"
+      local test_mock_dir="$arch_dir/test/$MOCK_LIB"
+      if [[ -f "$test_mock_dir/ViewModelTest.kt.tmpl" ]]; then
+        process_template "$test_mock_dir/ViewModelTest.kt.tmpl" "$test_dir/presentation/home/HomeViewModelTest.kt"
       fi
-      if [[ -f "$arch_dir/test/UseCaseTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/UseCaseTest.kt.tmpl" "$test_dir/domain/usecase/GetGreetingUseCaseTest.kt"
+      if [[ -f "$test_mock_dir/UseCaseTest.kt.tmpl" ]]; then
+        process_template "$test_mock_dir/UseCaseTest.kt.tmpl" "$test_dir/domain/usecase/GetGreetingUseCaseTest.kt"
       fi
-      if [[ -f "$arch_dir/test/ScreenTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/ScreenTest.kt.tmpl" "$test_dir/presentation/home/HomeScreenTest.kt"
+      if [[ -f "$test_mock_dir/ScreenTest.kt.tmpl" ]]; then
+        process_template "$test_mock_dir/ScreenTest.kt.tmpl" "$test_dir/presentation/home/HomeScreenTest.kt"
       fi
       ;;
 
@@ -304,11 +340,12 @@ STRINGS
       fi
 
       # Tests
-      if [[ -f "$arch_dir/test/ViewModelTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/ViewModelTest.kt.tmpl" "$test_dir/ui/home/HomeViewModelTest.kt"
+      local test_mock_dir="$arch_dir/test/$MOCK_LIB"
+      if [[ -f "$test_mock_dir/ViewModelTest.kt.tmpl" ]]; then
+        process_template "$test_mock_dir/ViewModelTest.kt.tmpl" "$test_dir/ui/home/HomeViewModelTest.kt"
       fi
-      if [[ -f "$arch_dir/test/ScreenTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/ScreenTest.kt.tmpl" "$test_dir/ui/home/HomeScreenTest.kt"
+      if [[ -f "$test_mock_dir/ScreenTest.kt.tmpl" ]]; then
+        process_template "$test_mock_dir/ScreenTest.kt.tmpl" "$test_dir/ui/home/HomeScreenTest.kt"
       fi
       ;;
   esac

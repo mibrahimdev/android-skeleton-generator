@@ -1,0 +1,52 @@
+package {{PACKAGE_NAME}}.presentation.home
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
+import kotlinx.coroutines.flow.flowOf
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(
+    sdk = [34],
+    application = android.app.Application::class
+)
+class HomeScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun displaysAppTitle() {
+        val useCase = mock<GetGreetingUseCase>()
+        whenever(useCase()).thenReturn(flowOf("Hello World"))
+        val viewModel = HomeViewModel(useCase)
+
+        composeTestRule.setContent {
+            HomeScreen(viewModel = viewModel)
+        }
+
+        composeTestRule.onNodeWithText("{{APP_NAME}}").assertIsDisplayed()
+    }
+
+    @Test
+    fun displaysHelloWorldGreeting() {
+        val useCase = mock<GetGreetingUseCase>()
+        whenever(useCase()).thenReturn(flowOf("Hello World"))
+        val viewModel = HomeViewModel(useCase)
+
+        composeTestRule.setContent {
+            HomeScreen(viewModel = viewModel)
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Hello World").assertIsDisplayed()
+    }
+}

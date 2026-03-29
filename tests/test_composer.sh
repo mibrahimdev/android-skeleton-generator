@@ -59,6 +59,7 @@ RESOLVED_VALS=("8.7.3" "2.1.0" "2024.12.01" "2.53.1")
 # --- Test Hilt config ---
 DI_FRAMEWORK="hilt"
 NETWORK_LIB="retrofit"
+MOCK_LIB="mockk"
 build_template_vars
 
 assert_contains "hilt: import present" "HiltViewModel" "$(get_tmpl_var HILT_IMPORT)"
@@ -75,15 +76,29 @@ assert_eq "koin: no hilt annotation" "" "$(get_tmpl_var HILT_ANNOTATION)"
 assert_eq "koin: no hilt inject" "" "$(get_tmpl_var HILT_INJECT)"
 assert_eq "koin: no app annotation" "" "$(get_tmpl_var APP_ANNOTATION)"
 
-# --- Test Metro config ---
-DI_FRAMEWORK="metro"
+# --- Test MockK config ---
+MOCK_LIB="mockk"
+DI_FRAMEWORK="hilt"
+RESOLVED_KEYS=("agp" "kotlin" "compose-bom" "hilt" "mockk")
+RESOLVED_VALS=("8.7.3" "2.1.0" "2024.12.01" "2.53.1" "1.13.14")
 build_template_vars
 
-assert_eq "metro: no hilt import" "" "$(get_tmpl_var HILT_IMPORT)"
-assert_eq "metro: no hilt annotation" "" "$(get_tmpl_var HILT_ANNOTATION)"
+assert_eq "mockk: version entry" "mockk = \"1.13.14\"" "$(get_tmpl_var MOCK_VERSION_ENTRIES)"
+assert_contains "mockk: library entry" "io.mockk" "$(get_tmpl_var MOCK_LIBRARY_ENTRIES)"
+
+# --- Test Mockito config ---
+MOCK_LIB="mockito"
+RESOLVED_KEYS=("agp" "kotlin" "compose-bom" "hilt" "mockito" "mockito-kotlin")
+RESOLVED_VALS=("8.7.3" "2.1.0" "2024.12.01" "2.53.1" "5.14.2" "5.4.0")
+build_template_vars
+
+assert_contains "mockito: version entry has mockito" "mockito = \"5.14.2\"" "$(get_tmpl_var MOCK_VERSION_ENTRIES)"
+assert_contains "mockito: library entry" "org.mockito" "$(get_tmpl_var MOCK_LIBRARY_ENTRIES)"
 
 # --- Test version vars are set ---
-DI_FRAMEWORK="hilt"
+MOCK_LIB="mockk"
+RESOLVED_KEYS=("agp" "kotlin" "compose-bom" "hilt" "mockk")
+RESOLVED_VALS=("8.7.3" "2.1.0" "2024.12.01" "2.53.1" "1.13.14")
 build_template_vars
 
 assert_eq "version AGP set" "8.7.3" "$(get_tmpl_var VERSION_AGP)"

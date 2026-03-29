@@ -27,8 +27,9 @@ The interactive wizard will ask for:
 4. **Architecture** - MVVM + Clean Architecture, MVI + Clean Architecture, or MVVM Simple
 5. **DI framework** - Hilt or Koin
 6. **Networking** - Retrofit + OkHttp or Ktor
-7. **Module structure** - Single module or multi-module
-8. **Output directory**
+7. **Mocking library** - MockK or Mockito
+8. **Module structure** - Single module or multi-module
+9. **Output directory**
 
 After generation, the tool automatically verifies the project builds and all tests pass.
 
@@ -41,6 +42,7 @@ After generation, the tool automatically verifies the project builds and all tes
   --arch mvvm-clean \
   --di hilt \
   --net retrofit \
+  --mock mockk \
   --min-sdk 24 \
   --modules single \
   --output ./MyApp
@@ -55,6 +57,7 @@ After generation, the tool automatically verifies the project builds and all tes
 | `--arch` | `mvvm-clean`, `mvi-clean`, `mvvm-simple` | Architecture pattern |
 | `--di` | `hilt`, `koin` | Dependency injection framework |
 | `--net` | `retrofit`, `ktor` | Networking library |
+| `--mock` | `mockk`, `mockito` | Mocking library for tests |
 | `--min-sdk` | `21`-`35` | Minimum SDK version |
 | `--modules` | `single`, `multi` | Module structure |
 | `--output` | path | Output directory (default: `./<name>`) |
@@ -88,8 +91,8 @@ MyApp/
       navigation/NavGraph.kt
       ui/theme/                     # Material3 theme
     src/test/java/.../
-      HomeViewModelTest.kt          # JUnit5 + MockK + Turbine
-      GetGreetingUseCaseTest.kt     # JUnit5 + MockK
+      HomeViewModelTest.kt          # JUnit5 + MockK/Mockito + Turbine
+      GetGreetingUseCaseTest.kt     # JUnit5 + MockK/Mockito
       HomeScreenTest.kt             # Robolectric + Compose UI Test
 ```
 
@@ -124,9 +127,12 @@ Flat structure without a domain layer: **Data** (Repository) -> **UI** (ViewMode
 - **Retrofit**: Retrofit + OkHttp + Logging Interceptor + Kotlinx Serialization Converter
 - **Ktor**: Ktor Client Android + Content Negotiation + Kotlinx JSON + Logging
 
+### Mocking (one of)
+- **MockK**: MockK (Kotlin-first, DSL-based)
+- **Mockito**: Mockito + mockito-kotlin (Java ecosystem standard)
+
 ### Testing
 - JUnit 5 (Jupiter API + Engine + Vintage Engine)
-- MockK
 - Turbine (Flow testing)
 - Robolectric
 - Compose UI Test (JUnit4 rule + manifest)

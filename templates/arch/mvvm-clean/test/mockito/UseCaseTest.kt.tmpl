@@ -1,0 +1,45 @@
+package {{PACKAGE_NAME}}.domain.usecase
+
+import app.cash.turbine.test
+import {{PACKAGE_NAME}}.domain.repository.GreetingRepository
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+
+class GetGreetingUseCaseTest {
+
+    private lateinit var repository: GreetingRepository
+    private lateinit var useCase: GetGreetingUseCase
+
+    @BeforeEach
+    fun setup() {
+        repository = mock()
+        useCase = GetGreetingUseCase(repository)
+    }
+
+    @Test
+    fun `invoke returns greeting from repository`() = runTest {
+        whenever(repository.getGreeting()).thenReturn(flowOf("Hello World"))
+
+        useCase().test {
+            val result = awaitItem()
+            assertEquals("Hello World", result)
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `invoke returns empty string when repository has no greeting`() = runTest {
+        whenever(repository.getGreeting()).thenReturn(flowOf(""))
+
+        useCase().test {
+            val result = awaitItem()
+            assertEquals("", result)
+            awaitComplete()
+        }
+    }
+}

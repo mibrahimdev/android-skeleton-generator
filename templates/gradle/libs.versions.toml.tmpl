@@ -11,7 +11,7 @@ datastore = "{{VERSION_DATASTORE}}"
 coroutines = "{{VERSION_COROUTINES}}"
 kotlinxSerialization = "{{VERSION_KOTLINX_SERIALIZATION}}"
 junit5 = "{{VERSION_JUNIT5}}"
-mockk = "{{VERSION_MOCKK}}"
+{{MOCK_VERSION_ENTRIES}}
 turbine = "{{VERSION_TURBINE}}"
 robolectric = "{{VERSION_ROBOLECTRIC}}"
 hilt = "{{VERSION_HILT}}"
@@ -84,7 +84,7 @@ junit5-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.
 junit5-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5" }
 junit5-vintage-engine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junit5" }
 junit5-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+{{MOCK_LIBRARY_ENTRIES}}
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }

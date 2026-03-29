@@ -1,0 +1,65 @@
+package {{PACKAGE_NAME}}.presentation.home
+
+import app.cash.turbine.test
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class HomeViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var getGreetingUseCase: GetGreetingUseCase
+    private lateinit var viewModel: HomeViewModel
+
+    @BeforeEach
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        getGreetingUseCase = mock()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `loadGreeting emits greeting to uiState`() = runTest {
+        whenever(getGreetingUseCase()).thenReturn(flowOf("Hello World"))
+
+        viewModel = HomeViewModel(getGreetingUseCase)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals("Hello World", state.greeting)
+            assertFalse(state.isLoading)
+        }
+    }
+
+    @Test
+    fun `loadGreeting emits empty string when no greeting`() = runTest {
+        whenever(getGreetingUseCase()).thenReturn(flowOf(""))
+
+        viewModel = HomeViewModel(getGreetingUseCase)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals("", state.greeting)
+            assertFalse(state.isLoading)
+        }
+    }
+}

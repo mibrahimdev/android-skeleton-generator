@@ -33,6 +33,8 @@ _fb "ktor"                   "3.0.3"
 _fb "kotlinx-serialization"  "1.7.3"
 _fb "junit5"                 "5.10.3"
 _fb "mockk"                  "1.13.14"
+_fb "mockito"                "5.14.2"
+_fb "mockito-kotlin"         "5.4.0"
 _fb "turbine"                "1.2.0"
 _fb "robolectric"            "4.14.1"
 _fb "coroutines"             "1.9.0"
@@ -76,6 +78,8 @@ _cd "ktor"                   "central:io.ktor:ktor-client-android"
 _cd "kotlinx-serialization"  "central:org.jetbrains.kotlinx:kotlinx-serialization-json"
 _cd "junit5"                 "central:org.junit.jupiter:junit-jupiter-api"
 _cd "mockk"                  "central:io.mockk:mockk"
+_cd "mockito"                "central:org.mockito:mockito-core"
+_cd "mockito-kotlin"         "central:org.mockito.kotlin:mockito-kotlin"
 _cd "turbine"                "central:app.cash.turbine:turbine"
 _cd "robolectric"            "central:org.robolectric:robolectric"
 _cd "coroutines"             "central:org.jetbrains.kotlinx:kotlinx-coroutines-core"
@@ -266,7 +270,7 @@ resolve_version() {
 }
 
 resolve_all_versions() {
-  local always_deps="agp kotlin ksp compose-bom activity-compose lifecycle navigation-compose room datastore kotlinx-serialization coroutines junit5 mockk turbine robolectric"
+  local always_deps="agp kotlin ksp compose-bom activity-compose lifecycle navigation-compose room datastore kotlinx-serialization coroutines junit5 turbine robolectric"
 
   local di_deps=""
   case "${DI_FRAMEWORK:-hilt}" in
@@ -280,7 +284,13 @@ resolve_all_versions() {
     ktor)     net_deps="ktor" ;;
   esac
 
-  local all_deps="$always_deps $di_deps $net_deps"
+  local mock_deps=""
+  case "${MOCK_LIB:-mockk}" in
+    mockk)   mock_deps="mockk" ;;
+    mockito) mock_deps="mockito mockito-kotlin" ;;
+  esac
+
+  local all_deps="$always_deps $di_deps $net_deps $mock_deps"
 
   if [[ "${RESOLVE_LATEST:-}" == "true" ]]; then
     # --latest flag: try network, fall back to hardcoded

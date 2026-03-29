@@ -102,8 +102,11 @@ assert_eq "fallback ktor exists" "true" \
 assert_eq "fallback koin exists" "true" \
   "$([[ -n "$(get_fallback 'koin')" ]] && echo true || echo false)"
 
-assert_eq "fallback metro exists" "true" \
-  "$([[ -n "$(get_fallback 'metro')" ]] && echo true || echo false)"
+assert_eq "fallback mockito exists" "true" \
+  "$([[ -n "$(get_fallback 'mockito')" ]] && echo true || echo false)"
+
+assert_eq "fallback mockito-kotlin exists" "true" \
+  "$([[ -n "$(get_fallback 'mockito-kotlin')" ]] && echo true || echo false)"
 
 # --- Test get_coord ---
 

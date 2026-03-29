@@ -8,6 +8,7 @@ MIN_SDK=""
 ARCH_TYPE=""
 DI_FRAMEWORK=""
 NETWORK_LIB=""
+MOCK_LIB=""
 MODULE_TYPE=""
 OUTPUT_DIR=""
 NON_INTERACTIVE=""
@@ -15,6 +16,7 @@ NON_INTERACTIVE=""
 VALID_ARCHS=("mvvm-clean" "mvi-clean" "mvvm-simple")
 VALID_DI=("hilt" "koin")
 VALID_NET=("retrofit" "ktor")
+VALID_MOCK=("mockk" "mockito")
 VALID_MODULES=("single" "multi")
 
 # Parse CLI arguments for non-interactive mode
@@ -29,6 +31,7 @@ parse_args() {
       --arch)       ARCH_TYPE="$2"; shift 2 ;;
       --di)         DI_FRAMEWORK="$2"; shift 2 ;;
       --net)        NETWORK_LIB="$2"; shift 2 ;;
+      --mock)       MOCK_LIB="$2"; shift 2 ;;
       --modules)    MODULE_TYPE="$2"; shift 2 ;;
       --output)     OUTPUT_DIR="$2"; shift 2 ;;
       --help|-h)    show_help; exit 0 ;;
@@ -68,6 +71,11 @@ validate_config() {
 
   if ! array_contains "$NETWORK_LIB" "${VALID_NET[@]}"; then
     log_error "Invalid networking: '$NETWORK_LIB' (must be one of: ${VALID_NET[*]})"
+    ((errors++))
+  fi
+
+  if ! array_contains "$MOCK_LIB" "${VALID_MOCK[@]}"; then
+    log_error "Invalid mocking library: '$MOCK_LIB' (must be one of: ${VALID_MOCK[*]})"
     ((errors++))
   fi
 
@@ -166,6 +174,11 @@ collect_config_interactive() {
     "ktor     — Ktor Client (pure Kotlin, coroutine-native, multiplatform-ready)")
   NETWORK_LIB="${NETWORK_LIB%% *}"
 
+  MOCK_LIB=$(prompt_choice "Mocking library for tests:" \
+    "mockk   — MockK (Kotlin-first, DSL-based, coroutine-aware)" \
+    "mockito — Mockito + mockito-kotlin (widely adopted, Java ecosystem standard)")
+  MOCK_LIB="${MOCK_LIB%% *}"
+
   MODULE_TYPE=$(prompt_choice "Module structure:" \
     "single — Single app module (simpler, recommended for starting out)" \
     "multi  — Multi-module (separate domain/data/presentation modules)")
@@ -203,6 +216,7 @@ Options:
   --arch ARCH           Architecture: mvvm-clean, mvi-clean, mvvm-simple
   --di DI               DI framework: hilt, koin
   --net NET             Networking: retrofit, ktor
+  --mock MOCK           Mocking library: mockk, mockito
   --modules TYPE        Module structure: single, multi
   --output DIR          Output directory (default: ./<name>)
   -h, --help            Show this help

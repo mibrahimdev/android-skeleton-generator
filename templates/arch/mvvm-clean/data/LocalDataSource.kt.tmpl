@@ -1,25 +1,9 @@
 package {{PACKAGE_NAME}}.data.local
 
-import {{PACKAGE_NAME}}.domain.model.Item
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 
-class LocalDataSource(private val itemDao: ItemDao) {
+class LocalDataSource {
 
-    fun getItems(): Flow<List<Item>> = itemDao.getAll().map { entities ->
-        entities.map { it.toDomain() }
-    }
-
-    suspend fun getItemById(id: Long): Item? = itemDao.getById(id)?.toDomain()
-
-    suspend fun insertItem(item: Item) {
-        itemDao.insert(item.toEntity())
-    }
-
-    suspend fun deleteItem(id: Long) {
-        itemDao.deleteById(id)
-    }
+    fun getGreeting(): Flow<String> = flowOf("Hello World")
 }
-
-private fun ItemEntity.toDomain() = Item(id = id, title = title, description = description)
-private fun Item.toEntity() = ItemEntity(id = id, title = title, description = description)

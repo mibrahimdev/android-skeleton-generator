@@ -1,9 +1,6 @@
-package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+package {{PACKAGE_NAME}}.presentation.home
 
-import {{PACKAGE_NAME}}.domain.model.Item
-
-data class {{FEATURE_NAME_PASCAL}}State(
-    val items: List<Item> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
+data class HomeState(
+    val greeting: String = "",
+    val isLoading: Boolean = false
 )

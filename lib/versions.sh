@@ -27,7 +27,6 @@ _fb "datastore"              "1.1.1"
 _fb "hilt"                   "2.53.1"
 _fb "hilt-navigation-compose" "1.2.0"
 _fb "koin"                   "4.0.1"
-_fb "metro"                  "0.3.8"
 _fb "retrofit"               "2.11.0"
 _fb "okhttp"                 "4.12.0"
 _fb "ktor"                   "3.0.3"
@@ -71,7 +70,6 @@ _cd "kotlin"                 "central:org.jetbrains.kotlin:kotlin-stdlib"
 _cd "ksp"                    "central:com.google.devtools.ksp:symbol-processing-api"
 _cd "hilt"                   "central:com.google.dagger:hilt-android"
 _cd "koin"                   "central:io.insert-koin:koin-android"
-_cd "metro"                  "central:dev.zacsweers.metro:runtime"
 _cd "retrofit"               "central:com.squareup.retrofit2:retrofit"
 _cd "okhttp"                 "central:com.squareup.okhttp3:okhttp"
 _cd "ktor"                   "central:io.ktor:ktor-client-android"
@@ -274,7 +272,6 @@ resolve_all_versions() {
   case "${DI_FRAMEWORK:-hilt}" in
     hilt)  di_deps="hilt hilt-navigation-compose" ;;
     koin)  di_deps="koin" ;;
-    metro) di_deps="metro" ;;
   esac
 
   local net_deps=""

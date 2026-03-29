@@ -135,7 +135,7 @@ import org.koin.core.context.startKoin"
   local fragments_dir="$SCRIPT_DIR/templates/build/fragments"
 
   # Always-included fragments
-  for frag in deps-compose deps-room deps-datastore deps-navigation deps-test; do
+  for frag in deps-compose deps-navigation deps-test; do
     if [[ -f "$fragments_dir/${frag}.fragment" ]]; then
       dep_block+="$(cat "$fragments_dir/${frag}.fragment")"$'\n'
     fi
@@ -153,11 +153,6 @@ import org.koin.core.context.startKoin"
       # Root version adds "apply false"
       root_plugin_block+="$(echo "$plugin_line" | sed 's/)/) apply false/')"$'\n'
     fi
-  fi
-
-  # Networking fragment
-  if [[ -f "$fragments_dir/deps-${NETWORK_LIB}.fragment" ]]; then
-    dep_block+="$(cat "$fragments_dir/deps-${NETWORK_LIB}.fragment")"$'\n'
   fi
 
   _tv "DEPENDENCY_BLOCK" "$dep_block"
@@ -244,42 +239,12 @@ STRINGS
   case "$ARCH_TYPE" in
     mvvm-clean|mvi-clean)
       # Domain layer
-      process_template "$arch_dir/domain/Repository.kt.tmpl" "$src/domain/repository/ItemRepository.kt"
-      process_template "$arch_dir/domain/UseCase.kt.tmpl" "$src/domain/usecase/GetItemsUseCase.kt"
-
-      # Model
-      if [[ -f "$arch_dir/domain/Item.kt.tmpl" ]]; then
-        process_template "$arch_dir/domain/Item.kt.tmpl" "$src/domain/model/Item.kt"
-      fi
+      process_template "$arch_dir/domain/Repository.kt.tmpl" "$src/domain/repository/GreetingRepository.kt"
+      process_template "$arch_dir/domain/UseCase.kt.tmpl" "$src/domain/usecase/GetGreetingUseCase.kt"
 
       # Data layer
-      process_template "$arch_dir/data/RepositoryImpl.kt.tmpl" "$src/data/repository/ItemRepositoryImpl.kt"
-
-      # Networking-specific data source
-      if [[ "$NETWORK_LIB" == "retrofit" ]]; then
-        if [[ -f "$arch_dir/data/ApiService.kt.tmpl" ]]; then
-          process_template "$arch_dir/data/ApiService.kt.tmpl" "$src/data/remote/ApiService.kt"
-        fi
-        process_template "$arch_dir/data/RemoteDataSource.kt.tmpl" "$src/data/remote/RemoteDataSource.kt"
-      elif [[ "$NETWORK_LIB" == "ktor" ]]; then
-        if [[ -f "$arch_dir/data/KtorApiClient.kt.tmpl" ]]; then
-          process_template "$arch_dir/data/KtorApiClient.kt.tmpl" "$src/data/remote/KtorApiClient.kt"
-        fi
-        if [[ -f "$arch_dir/data/RemoteDataSourceKtor.kt.tmpl" ]]; then
-          process_template "$arch_dir/data/RemoteDataSourceKtor.kt.tmpl" "$src/data/remote/RemoteDataSource.kt"
-        else
-          process_template "$arch_dir/data/RemoteDataSource.kt.tmpl" "$src/data/remote/RemoteDataSource.kt"
-        fi
-      fi
       process_template "$arch_dir/data/LocalDataSource.kt.tmpl" "$src/data/local/LocalDataSource.kt"
-
-      # Room
-      if [[ -f "$arch_dir/data/ItemDao.kt.tmpl" ]]; then
-        process_template "$arch_dir/data/ItemDao.kt.tmpl" "$src/data/local/ItemDao.kt"
-      fi
-      if [[ -f "$arch_dir/data/AppDatabase.kt.tmpl" ]]; then
-        process_template "$arch_dir/data/AppDatabase.kt.tmpl" "$src/data/local/AppDatabase.kt"
-      fi
+      process_template "$arch_dir/data/RepositoryImpl.kt.tmpl" "$src/data/repository/GreetingRepositoryImpl.kt"
 
       # Presentation
       process_template "$arch_dir/presentation/ViewModel.kt.tmpl" "$src/presentation/home/HomeViewModel.kt"
@@ -297,26 +262,8 @@ STRINGS
       if [[ -d "$di_dir" ]]; then
         for tmpl in "$di_dir"/*.kt.tmpl; do
           [[ -f "$tmpl" ]] || continue
-          local filename basename_tmpl
-          basename_tmpl=$(basename "$tmpl")
+          local filename
           filename=$(basename "$tmpl" .tmpl)
-
-          # Select networking-specific DI module variant
-          # Skip Ktor variants when using Retrofit and vice versa
-          case "$basename_tmpl" in
-            *Ktor*)
-              [[ "$NETWORK_LIB" != "ktor" ]] && continue
-              # Output without "Ktor" suffix
-              filename="${filename/Ktor/}"
-              ;;
-            AppModule.kt.tmpl|AppGraph.kt.tmpl)
-              # Skip the Retrofit version if Ktor variant exists and Ktor is selected
-              if [[ "$NETWORK_LIB" == "ktor" && -f "$di_dir/${basename_tmpl%.kt.tmpl}Ktor.kt.tmpl" ]]; then
-                continue
-              fi
-              ;;
-          esac
-
           process_template "$tmpl" "$src/di/$filename"
         done
       fi
@@ -326,23 +273,31 @@ STRINGS
         process_template "$arch_dir/test/ViewModelTest.kt.tmpl" "$test_dir/presentation/home/HomeViewModelTest.kt"
       fi
       if [[ -f "$arch_dir/test/UseCaseTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/UseCaseTest.kt.tmpl" "$test_dir/domain/usecase/GetItemsUseCaseTest.kt"
+        process_template "$arch_dir/test/UseCaseTest.kt.tmpl" "$test_dir/domain/usecase/GetGreetingUseCaseTest.kt"
       fi
       if [[ -f "$arch_dir/test/ScreenTest.kt.tmpl" ]]; then
         process_template "$arch_dir/test/ScreenTest.kt.tmpl" "$test_dir/presentation/home/HomeScreenTest.kt"
-      fi
-      if [[ -f "$arch_dir/test/RepositoryIntegrationTest.kt.tmpl" ]]; then
-        process_template "$arch_dir/test/RepositoryIntegrationTest.kt.tmpl" "$test_dir/data/repository/ItemRepositoryIntegrationTest.kt"
       fi
       ;;
 
     mvvm-simple)
       # Data
-      process_template "$arch_dir/data/Repository.kt.tmpl" "$src/data/ItemRepository.kt"
+      process_template "$arch_dir/data/Repository.kt.tmpl" "$src/data/repository/GreetingRepository.kt"
 
       # UI
       process_template "$arch_dir/ui/ViewModel.kt.tmpl" "$src/ui/home/HomeViewModel.kt"
       process_template "$arch_dir/ui/Screen.kt.tmpl" "$src/ui/home/HomeScreen.kt"
+
+      # DI
+      local di_dir="$arch_dir/di/$DI_FRAMEWORK"
+      if [[ -d "$di_dir" ]]; then
+        for tmpl in "$di_dir"/*.kt.tmpl; do
+          [[ -f "$tmpl" ]] || continue
+          local filename
+          filename=$(basename "$tmpl" .tmpl)
+          process_template "$tmpl" "$src/di/$filename"
+        done
+      fi
 
       # Tests
       if [[ -f "$arch_dir/test/ViewModelTest.kt.tmpl" ]]; then

@@ -3,8 +3,7 @@ package {{PACKAGE_NAME}}.presentation.home
 {{HILT_IMPORT}}
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import {{PACKAGE_NAME}}.domain.model.Item
-import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,32 +12,32 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class HomeUiState(
-    val items: List<Item> = emptyList(),
+    val greeting: String = "",
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
 {{HILT_ANNOTATION}}
 class HomeViewModel {{HILT_INJECT}}constructor(
-    private val getItemsUseCase: GetItemsUseCase
+    private val getGreetingUseCase: GetGreetingUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        loadItems()
+        loadGreeting()
     }
 
-    fun loadItems() {
+    fun loadGreeting() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            getItemsUseCase()
+            getGreetingUseCase()
                 .catch { e ->
                     _uiState.update { it.copy(isLoading = false, error = e.message) }
                 }
-                .collect { items ->
-                    _uiState.update { it.copy(items = items, isLoading = false) }
+                .collect { greeting ->
+                    _uiState.update { it.copy(greeting = greeting, isLoading = false) }
                 }
         }
     }

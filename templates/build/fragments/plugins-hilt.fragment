@@ -1,1 +1,2 @@
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)

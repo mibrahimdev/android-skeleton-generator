@@ -1,11 +1,7 @@
 package {{PACKAGE_NAME}}.domain.repository
 
-import {{PACKAGE_NAME}}.domain.model.Item
 import kotlinx.coroutines.flow.Flow
 
-interface ItemRepository {
-    fun getItems(): Flow<List<Item>>
-    suspend fun getItemById(id: Long): Item?
-    suspend fun insertItem(item: Item)
-    suspend fun deleteItem(id: Long)
+interface GreetingRepository {
+    fun getGreeting(): Flow<String>
 }

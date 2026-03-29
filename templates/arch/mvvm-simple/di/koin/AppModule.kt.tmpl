@@ -1,0 +1,13 @@
+package {{PACKAGE_NAME}}.di
+
+import {{PACKAGE_NAME}}.data.repository.GreetingRepository
+import {{PACKAGE_NAME}}.ui.home.HomeViewModel
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
+
+val appModule = module {
+
+    single { GreetingRepository() }
+
+    viewModel { HomeViewModel(get()) }
+}

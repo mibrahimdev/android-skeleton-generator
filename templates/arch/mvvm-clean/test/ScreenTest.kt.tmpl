@@ -3,8 +3,7 @@ package {{PACKAGE_NAME}}.presentation.home
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import {{PACKAGE_NAME}}.domain.model.Item
-import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -26,8 +25,8 @@ class HomeScreenTest {
 
     @Test
     fun displaysAppTitle() {
-        val useCase = mockk<GetItemsUseCase>()
-        every { useCase() } returns flowOf(emptyList())
+        val useCase = mockk<GetGreetingUseCase>()
+        every { useCase() } returns flowOf("Hello World")
         val viewModel = HomeViewModel(useCase)
 
         composeTestRule.setContent {
@@ -38,12 +37,9 @@ class HomeScreenTest {
     }
 
     @Test
-    fun displaysItemsInList() {
-        val items = listOf(
-            Item(id = 1, title = "Test Item", description = "Test Description")
-        )
-        val useCase = mockk<GetItemsUseCase>()
-        every { useCase() } returns flowOf(items)
+    fun displaysGreeting() {
+        val useCase = mockk<GetGreetingUseCase>()
+        every { useCase() } returns flowOf("Hello World")
         val viewModel = HomeViewModel(useCase)
 
         composeTestRule.setContent {
@@ -51,7 +47,6 @@ class HomeScreenTest {
         }
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("Test Item").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Test Description").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Hello World").assertIsDisplayed()
     }
 }

@@ -1,76 +1,44 @@
-package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+package {{PACKAGE_NAME}}.presentation.home
 
 {{HILT_IMPORT}}
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
-import kotlinx.coroutines.channels.Channel
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 {{HILT_ANNOTATION}}
-class {{FEATURE_NAME_PASCAL}}ViewModel {{HILT_INJECT}}constructor(
-    private val getItemsUseCase: GetItemsUseCase
+class HomeViewModel {{HILT_INJECT}}constructor(
+    private val getGreetingUseCase: GetGreetingUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow({{FEATURE_NAME_PASCAL}}State())
-    val state: StateFlow<{{FEATURE_NAME_PASCAL}}State> = _state.asStateFlow()
-
-    private val _sideEffect = Channel<{{FEATURE_NAME_PASCAL}}SideEffect>(Channel.BUFFERED)
-    val sideEffect = _sideEffect.receiveAsFlow()
+    private val _state = MutableStateFlow(HomeState())
+    val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
-        processIntent({{FEATURE_NAME_PASCAL}}Intent.LoadItems)
+        processIntent(HomeIntent.LoadGreeting)
     }
 
-    fun processIntent(intent: {{FEATURE_NAME_PASCAL}}Intent) {
+    fun processIntent(intent: HomeIntent) {
         when (intent) {
-            is {{FEATURE_NAME_PASCAL}}Intent.LoadItems -> loadItems()
-            is {{FEATURE_NAME_PASCAL}}Intent.RefreshItems -> refreshItems()
+            is HomeIntent.LoadGreeting -> loadGreeting()
         }
     }
 
-    private fun loadItems() {
+    private fun loadGreeting() {
         viewModelScope.launch {
-            _state.update { reduce(it, loading = true, error = null) }
-            getItemsUseCase()
+            _state.update { it.copy(isLoading = true) }
+            getGreetingUseCase()
                 .catch { e ->
-                    _state.update { reduce(it, loading = false, error = e.message) }
-                    _sideEffect.send({{FEATURE_NAME_PASCAL}}SideEffect.ShowError(e.message ?: "Unknown error"))
+                    _state.update { it.copy(isLoading = false) }
                 }
-                .collect { items ->
-                    _state.update { reduce(it, items = items, loading = false) }
+                .collect { greeting ->
+                    _state.update { it.copy(greeting = greeting, isLoading = false) }
                 }
         }
     }
-
-    private fun refreshItems() {
-        viewModelScope.launch {
-            _state.update { reduce(it, loading = true, error = null) }
-            getItemsUseCase()
-                .catch { e ->
-                    _state.update { reduce(it, loading = false, error = e.message) }
-                    _sideEffect.send({{FEATURE_NAME_PASCAL}}SideEffect.ShowError(e.message ?: "Unknown error"))
-                }
-                .collect { items ->
-                    _state.update { reduce(it, items = items, loading = false) }
-                }
-        }
-    }
-
-    private fun reduce(
-        currentState: {{FEATURE_NAME_PASCAL}}State,
-        items: List<{{PACKAGE_NAME}}.domain.model.Item> = currentState.items,
-        loading: Boolean = currentState.isLoading,
-        error: String? = currentState.error
-    ): {{FEATURE_NAME_PASCAL}}State = currentState.copy(
-        items = items,
-        isLoading = loading,
-        error = error
-    )
 }

@@ -1,13 +1,11 @@
-package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+package {{PACKAGE_NAME}}.presentation.home
 
 import app.cash.turbine.test
-import {{PACKAGE_NAME}}.domain.model.Item
-import {{PACKAGE_NAME}}.domain.usecase.GetItemsUseCase
+import {{PACKAGE_NAME}}.domain.usecase.GetGreetingUseCase
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -16,22 +14,20 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class {{FEATURE_NAME_PASCAL}}ViewModelTest {
+class HomeViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var getItemsUseCase: GetItemsUseCase
-    private lateinit var viewModel: {{FEATURE_NAME_PASCAL}}ViewModel
+    private lateinit var getGreetingUseCase: GetGreetingUseCase
+    private lateinit var viewModel: HomeViewModel
 
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        getItemsUseCase = mockk()
+        getGreetingUseCase = mockk()
     }
 
     @AfterEach
@@ -40,84 +36,29 @@ class {{FEATURE_NAME_PASCAL}}ViewModelTest {
     }
 
     @Test
-    fun `LoadItems intent emits items to state`() = runTest {
-        val items = listOf(
-            Item(id = 1, title = "Item 1", description = "Description 1"),
-            Item(id = 2, title = "Item 2", description = "Description 2")
-        )
-        every { getItemsUseCase() } returns flowOf(items)
+    fun `processIntent LoadGreeting updates state with greeting`() = runTest {
+        every { getGreetingUseCase() } returns flowOf("Hello World")
 
-        viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(getItemsUseCase)
+        viewModel = HomeViewModel(getGreetingUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.state.test {
             val state = awaitItem()
-            assertEquals(2, state.items.size)
-            assertEquals("Item 1", state.items[0].title)
-            assertFalse(state.isLoading)
-            assertNull(state.error)
-        }
-    }
-
-    @Test
-    fun `LoadItems intent sets empty list when no items`() = runTest {
-        every { getItemsUseCase() } returns flowOf(emptyList())
-
-        viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(getItemsUseCase)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.state.test {
-            val state = awaitItem()
-            assertEquals(0, state.items.size)
+            assertEquals("Hello World", state.greeting)
             assertFalse(state.isLoading)
         }
     }
 
     @Test
-    fun `RefreshItems intent reloads items`() = runTest {
-        val items = listOf(
-            Item(id = 1, title = "Refreshed", description = "After refresh")
-        )
-        every { getItemsUseCase() } returns flowOf(items)
+    fun `processIntent LoadGreeting sets empty greeting when use case returns empty`() = runTest {
+        every { getGreetingUseCase() } returns flowOf("")
 
-        viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(getItemsUseCase)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.processIntent({{FEATURE_NAME_PASCAL}}Intent.RefreshItems)
+        viewModel = HomeViewModel(getGreetingUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.state.test {
             val state = awaitItem()
-            assertEquals(1, state.items.size)
-            assertEquals("Refreshed", state.items[0].title)
-            assertFalse(state.isLoading)
-        }
-    }
-
-    @Test
-    fun `LoadItems error emits ShowError side effect`() = runTest {
-        every { getItemsUseCase() } returns flow { throw RuntimeException("Network error") }
-
-        viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(getItemsUseCase)
-
-        viewModel.sideEffect.test {
-            testDispatcher.scheduler.advanceUntilIdle()
-            val effect = awaitItem()
-            assertTrue(effect is {{FEATURE_NAME_PASCAL}}SideEffect.ShowError)
-            assertEquals("Network error", (effect as {{FEATURE_NAME_PASCAL}}SideEffect.ShowError).message)
-        }
-    }
-
-    @Test
-    fun `LoadItems error updates state with error message`() = runTest {
-        every { getItemsUseCase() } returns flow { throw RuntimeException("Network error") }
-
-        viewModel = {{FEATURE_NAME_PASCAL}}ViewModel(getItemsUseCase)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        viewModel.state.test {
-            val state = awaitItem()
-            assertEquals("Network error", state.error)
+            assertEquals("", state.greeting)
             assertFalse(state.isLoading)
         }
     }

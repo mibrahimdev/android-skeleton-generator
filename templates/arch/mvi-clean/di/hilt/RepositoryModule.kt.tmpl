@@ -1,8 +1,8 @@
 package {{PACKAGE_NAME}}.di
 
 import {{PACKAGE_NAME}}.data.local.LocalDataSource
-import {{PACKAGE_NAME}}.data.repository.ItemRepositoryImpl
-import {{PACKAGE_NAME}}.domain.repository.ItemRepository
+import {{PACKAGE_NAME}}.data.repository.GreetingRepositoryImpl
+import {{PACKAGE_NAME}}.domain.repository.GreetingRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +15,6 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideItemRepository(localDataSource: LocalDataSource): ItemRepository =
-        ItemRepositoryImpl(localDataSource)
+    fun provideGreetingRepository(localDataSource: LocalDataSource): GreetingRepository =
+        GreetingRepositoryImpl(localDataSource)
 }

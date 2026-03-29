@@ -1,6 +1,5 @@
-package {{PACKAGE_NAME}}.presentation.{{FEATURE_NAME}}
+package {{PACKAGE_NAME}}.presentation.home
 
-sealed interface {{FEATURE_NAME_PASCAL}}SideEffect {
-    data class ShowError(val message: String) : {{FEATURE_NAME_PASCAL}}SideEffect
-    data class NavigateTo(val route: String) : {{FEATURE_NAME_PASCAL}}SideEffect
+sealed interface HomeSideEffect {
+    data class ShowError(val message: String) : HomeSideEffect
 }

@@ -13,7 +13,7 @@ OUTPUT_DIR=""
 NON_INTERACTIVE=""
 
 VALID_ARCHS=("mvvm-clean" "mvi-clean" "mvvm-simple")
-VALID_DI=("hilt" "koin" "metro")
+VALID_DI=("hilt" "koin")
 VALID_NET=("retrofit" "ktor")
 VALID_MODULES=("single" "multi")
 
@@ -157,9 +157,8 @@ collect_config_interactive() {
   ARCH_TYPE="${ARCH_TYPE%% *}"  # Extract the key before the description
 
   DI_FRAMEWORK=$(prompt_choice "Dependency injection framework:" \
-    "hilt  — Dagger Hilt (annotation-based, official Jetpack support)" \
-    "koin  — Koin (lightweight, pure Kotlin service locator)" \
-    "metro — Metro (KSP-based, compile-time DI by Zac Sweers)")
+    "hilt — Dagger Hilt (annotation-based, official Jetpack support)" \
+    "koin — Koin (lightweight, pure Kotlin service locator)")
   DI_FRAMEWORK="${DI_FRAMEWORK%% *}"
 
   NETWORK_LIB=$(prompt_choice "Networking library:" \
@@ -202,7 +201,7 @@ Options:
   --package PKG         Package name (e.g. com.example.myapp)
   --min-sdk SDK         Minimum SDK version (21-35)
   --arch ARCH           Architecture: mvvm-clean, mvi-clean, mvvm-simple
-  --di DI               DI framework: hilt, koin, metro
+  --di DI               DI framework: hilt, koin
   --net NET             Networking: retrofit, ktor
   --modules TYPE        Module structure: single, multi
   --output DIR          Output directory (default: ./<name>)

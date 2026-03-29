@@ -11,11 +11,11 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
@@ -36,30 +36,28 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `loadGreeting emits greeting to uiState`() = runTest {
+    fun `uiState emits success with greeting`() = runTest {
         whenever(getGreetingUseCase()).thenReturn(flowOf("Hello World"))
 
         viewModel = HomeViewModel(getGreetingUseCase)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
+            assertEquals(HomeUiState.Loading, awaitItem())
             val state = awaitItem()
+            assertIs<HomeUiState.Success>(state)
             assertEquals("Hello World", state.greeting)
-            assertFalse(state.isLoading)
         }
     }
 
     @Test
-    fun `loadGreeting emits empty string when no greeting`() = runTest {
-        whenever(getGreetingUseCase()).thenReturn(flowOf(""))
+    fun `uiState starts with loading`() = runTest {
+        whenever(getGreetingUseCase()).thenReturn(flowOf("Hello World"))
 
         viewModel = HomeViewModel(getGreetingUseCase)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertEquals("", state.greeting)
-            assertFalse(state.isLoading)
+            assertEquals(HomeUiState.Loading, awaitItem())
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }

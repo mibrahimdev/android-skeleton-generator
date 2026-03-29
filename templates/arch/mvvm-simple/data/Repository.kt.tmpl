@@ -1,9 +1,10 @@
 package {{PACKAGE_NAME}}.data.repository
 
+{{INJECT_IMPORT}}
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class GreetingRepository {
+class GreetingRepository {{HILT_INJECT}}constructor() {
 
     fun getGreeting(): Flow<String> = flowOf("Hello World")
 }

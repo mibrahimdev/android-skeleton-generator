@@ -4,7 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 import {{PACKAGE_NAME}}.{{SCREEN_PACKAGE}}.HomeScreen
+
+@Serializable
+data object Home
 
 @Composable
 fun AppNavGraph() {
@@ -12,9 +16,9 @@ fun AppNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = Home
     ) {
-        composable("home") {
+        composable<Home> {
             HomeScreen()
         }
     }

@@ -98,6 +98,7 @@ build_template_vars() {
 import javax.inject.Inject"
       _tv "HILT_ANNOTATION" "@HiltViewModel"
       _tv "HILT_INJECT" "@Inject "
+      _tv "INJECT_IMPORT" "import javax.inject.Inject"
       _tv "APP_ANNOTATION" "@HiltAndroidApp"
       _tv "APP_ANNOTATION_IMPORT" "import dagger.hilt.android.HiltAndroidApp"
       _tv "APP_ONCREATE" ""
@@ -108,6 +109,7 @@ import javax.inject.Inject"
       _tv "HILT_IMPORT" ""
       _tv "HILT_ANNOTATION" ""
       _tv "HILT_INJECT" ""
+      _tv "INJECT_IMPORT" ""
       _tv "APP_ANNOTATION" ""
       _tv "APP_ANNOTATION_IMPORT" "import ${PACKAGE_NAME}.di.appModule
 import org.koin.android.ext.koin.androidContext

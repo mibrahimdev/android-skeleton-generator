@@ -1,10 +1,11 @@
 package {{PACKAGE_NAME}}.data.repository
 
+{{INJECT_IMPORT}}
 import {{PACKAGE_NAME}}.data.local.LocalDataSource
 import {{PACKAGE_NAME}}.domain.repository.GreetingRepository
 import kotlinx.coroutines.flow.Flow
 
-class GreetingRepositoryImpl(
+class GreetingRepositoryImpl {{HILT_INJECT}}constructor(
     private val localDataSource: LocalDataSource
 ) : GreetingRepository {
 

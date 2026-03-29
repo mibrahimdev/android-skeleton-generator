@@ -1,9 +1,10 @@
 package {{PACKAGE_NAME}}.data.local
 
+{{INJECT_IMPORT}}
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class LocalDataSource {
+class LocalDataSource {{HILT_INJECT}}constructor() {
 
     fun getGreeting(): Flow<String> = flowOf("Hello World")
 }

@@ -3,6 +3,7 @@
     testRuntimeOnly(libs.junit5.engine)
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.launcher)
+    testImplementation(kotlin("test"))
     testImplementation(libs.turbine)
     testImplementation(libs.robolectric)
     testImplementation(libs.coroutines.test)

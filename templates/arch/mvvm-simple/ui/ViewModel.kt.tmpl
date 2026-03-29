@@ -4,29 +4,25 @@ package {{PACKAGE_NAME}}.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import {{PACKAGE_NAME}}.data.repository.GreetingRepository
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
-data class HomeUiState(
-    val greeting: String = ""
-)
+sealed interface HomeUiState {
+    data object Loading : HomeUiState
+    data class Success(val greeting: String) : HomeUiState
+    data class Error(val throwable: Throwable) : HomeUiState
+}
 
 {{HILT_ANNOTATION}}
 class HomeViewModel {{HILT_INJECT}}constructor(
-    private val repository: GreetingRepository
+    repository: GreetingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            repository.getGreeting().collect { greeting ->
-                _uiState.update { it.copy(greeting = greeting) }
-            }
-        }
-    }
+    val uiState: StateFlow<HomeUiState> = repository.getGreeting()
+        .map<String, HomeUiState> { HomeUiState.Success(it) }
+        .catch { emit(HomeUiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState.Loading)
 }

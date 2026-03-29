@@ -1,9 +1,10 @@
 package {{PACKAGE_NAME}}.domain.usecase
 
+{{INJECT_IMPORT}}
 import {{PACKAGE_NAME}}.domain.repository.GreetingRepository
 import kotlinx.coroutines.flow.Flow
 
-class GetGreetingUseCase(
+class GetGreetingUseCase {{HILT_INJECT}}constructor(
     private val repository: GreetingRepository
 ) {
     operator fun invoke(): Flow<String> = repository.getGreeting()

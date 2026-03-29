@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
@@ -35,14 +36,15 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `emits greeting from repository in uiState`() = runTest {
+    fun `uiState emits success with greeting`() = runTest {
         whenever(repository.getGreeting()).thenReturn(flowOf("Hello World"))
 
         viewModel = HomeViewModel(repository)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
+            assertEquals(HomeUiState.Loading, awaitItem())
             val state = awaitItem()
+            assertIs<HomeUiState.Success>(state)
             assertEquals("Hello World", state.greeting)
         }
     }

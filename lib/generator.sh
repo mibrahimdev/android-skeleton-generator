@@ -101,6 +101,8 @@ import javax.inject.Inject"
       _tv "INJECT_IMPORT" "import javax.inject.Inject"
       _tv "APP_ANNOTATION" "@HiltAndroidApp"
       _tv "APP_ANNOTATION_IMPORT" "import dagger.hilt.android.HiltAndroidApp"
+      _tv "ACTIVITY_ANNOTATION" "@AndroidEntryPoint"
+      _tv "ACTIVITY_ANNOTATION_IMPORT" "import dagger.hilt.android.AndroidEntryPoint"
       _tv "APP_ONCREATE" ""
       _tv "VIEWMODEL_IMPORT" "import androidx.lifecycle.viewmodel.compose.viewModel"
       _tv "VIEWMODEL_CALL" "viewModel()"
@@ -114,6 +116,8 @@ import javax.inject.Inject"
       _tv "APP_ANNOTATION_IMPORT" "import ${PACKAGE_NAME}.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin"
+      _tv "ACTIVITY_ANNOTATION" ""
+      _tv "ACTIVITY_ANNOTATION_IMPORT" ""
       _tv "APP_ONCREATE" "    override fun onCreate() {
         super.onCreate()
         startKoin {

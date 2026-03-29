@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+{{ACTIVITY_ANNOTATION_IMPORT}}
 import {{PACKAGE_NAME}}.navigation.AppNavGraph
 import {{PACKAGE_NAME}}.ui.theme.{{APP_NAME}}Theme
 
+{{ACTIVITY_ANNOTATION}}
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -101,6 +101,8 @@ import javax.inject.Inject"
       _tv "APP_ANNOTATION" "@HiltAndroidApp"
       _tv "APP_ANNOTATION_IMPORT" "import dagger.hilt.android.HiltAndroidApp"
       _tv "APP_ONCREATE" ""
+      _tv "VIEWMODEL_IMPORT" "import androidx.lifecycle.viewmodel.compose.viewModel"
+      _tv "VIEWMODEL_CALL" "viewModel()"
       ;;
     koin)
       _tv "HILT_IMPORT" ""
@@ -117,6 +119,8 @@ import org.koin.core.context.startKoin"
             modules(appModule)
         }
     }"
+      _tv "VIEWMODEL_IMPORT" "import org.koin.androidx.compose.koinViewModel"
+      _tv "VIEWMODEL_CALL" "koinViewModel()"
       ;;
     metro)
       _tv "HILT_IMPORT" ""
